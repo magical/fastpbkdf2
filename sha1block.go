@@ -11,9 +11,9 @@ const (
 	_K3 = 0xCA62C1D6
 )
 
-// sha1_block is a portable, pure Go version of the SHA-1 block step.
+// sha1_block_generic is a portable, pure Go version of the SHA-1 block step.
 // It's used by sha1block_generic.go and tests.
-func sha1_block(dst, init, src *block) {
+func sha1_block_generic(dst, init, src *block) {
 	w := src.h
 	h0, h1, h2, h3, h4 := init.h[0], init.h[1], init.h[2], init.h[3], init.h[4]
 	a, b, c, d, e := h0, h1, h2, h3, h4
