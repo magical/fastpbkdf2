@@ -159,8 +159,8 @@ func TestWithHMACSHA256(t *testing.T) {
 
 var sink uint8
 
-func benchmark(b *testing.B, h func() hash.Hash) {
-	password := make([]byte, h().Size())
+func BenchmarkHMACSHA1(b *testing.B) {
+	password := make([]byte, sha1.Size)
 	salt := make([]byte, 8)
 	for i := 0; i < b.N; i++ {
 		password = SHA1(password, salt, 4096, len(password))
@@ -168,12 +168,13 @@ func benchmark(b *testing.B, h func() hash.Hash) {
 	sink += password[0]
 }
 
-func BenchmarkHMACSHA1(b *testing.B) {
-	benchmark(b, sha1.New)
-}
-
 /*
 func BenchmarkHMACSHA256(b *testing.B) {
-	benchmark(b, sha256.New)
+	password := make([]byte, sha256.Size)
+	salt := make([]byte, 8)
+	for i := 0; i < b.N; i++ {
+		password = SHA1(password, salt, 4096, len(password))
+	}
+	sink += password[0]
 }
 */
