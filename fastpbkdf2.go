@@ -24,9 +24,7 @@ import (
 )
 
 const (
-	Size      = sha1.Size
-	BlockSize = sha1.BlockSize
-	chunk     = BlockSize
+	chunk = sha1.BlockSize
 )
 
 // Key derives a key from the password, salt and iteration count, returning a
@@ -47,7 +45,7 @@ const (
 // search but will also make derivation proportionally slower.
 func SHA1(password, salt []byte, iter, keyLen int) []byte {
 	prf := hmac.New(sha1.New, password)
-	numBlocks := (keyLen + Size - 1) / Size
+	numBlocks := (keyLen + sha1.Size - 1) / sha1.Size
 
 	var inner, outer block
 	hmac_init(&inner, &outer, password)
@@ -55,8 +53,8 @@ func SHA1(password, salt []byte, iter, keyLen int) []byte {
 	var buf [4]byte
 	var tmp block
 	var U block
-	dk := make([]byte, 0, numBlocks*Size)
-	tpad := make([]byte, BlockSize)
+	dk := make([]byte, 0, numBlocks*sha1.Size)
+	tpad := make([]byte, sha1.BlockSize)
 	for block := 1; block <= numBlocks; block++ {
 		// N.B.: || means concatenation, ^ means XOR
 		// for each block T_i = U_1 ^ U_2 ^ ... ^ U_iter
@@ -66,7 +64,7 @@ func SHA1(password, salt []byte, iter, keyLen int) []byte {
 		putUint32(buf[:], uint32(block))
 		prf.Write(buf[:4])
 		dk = prf.Sum(dk)
-		T := dk[len(dk)-Size:]
+		T := dk[len(dk)-sha1.Size:]
 
 		//sha1_input(&tmp, T)
 		for i := range tmp.h[:5] {
@@ -74,7 +72,7 @@ func SHA1(password, salt []byte, iter, keyLen int) []byte {
 		}
 		// U_n = PRF(password, U_(n-1))
 		copy(tpad, T)
-		sha1_pad(tpad, BlockSize+Size)
+		sha1_pad(tpad, sha1.BlockSize+sha1.Size)
 		sha1_input(&U, tpad)
 		for n := 2; n <= iter; n++ {
 			sha1_block(&U, &inner, &U)
@@ -167,14 +165,14 @@ timing side-channels:
 // hmac = H([key ^ opad] H([key ^ ipad] text))
 
 func hmac_init(inner, outer *block, key []byte) {
-	if len(key) > BlockSize {
+	if len(key) > sha1.BlockSize {
 		// If key is too big, hash it.
 		sum := sha1.Sum(key)
 		key = sum[:]
 	}
 
-	ipad := make([]byte, BlockSize)
-	opad := make([]byte, BlockSize)
+	ipad := make([]byte, sha1.BlockSize)
+	opad := make([]byte, sha1.BlockSize)
 	copy(ipad, key)
 	copy(opad, key)
 	for i := range ipad {

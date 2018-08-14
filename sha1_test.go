@@ -11,8 +11,8 @@ func Test_sha1(t *testing.T) {
 
 	var ctx block
 	var in block
-	pad := make([]byte, BlockSize)
-	got := make([]byte, Size)
+	pad := make([]byte, sha1.BlockSize)
+	got := make([]byte, sha1.Size)
 
 	sha1_init(&ctx)
 	copy(pad, msg)
