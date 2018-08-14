@@ -79,10 +79,11 @@ func SHA1(password, salt []byte, iter, keyLen int) []byte {
 		for n := 2; n <= iter; n++ {
 			sha1_block(&U, &inner, &U)
 			sha1_block(&U, &outer, &U)
-
-			for i := range U.h[:5] {
-				tmp.h[i] ^= U.h[i]
-			}
+			tmp.h[0] ^= U.h[0]
+			tmp.h[1] ^= U.h[1]
+			tmp.h[2] ^= U.h[2]
+			tmp.h[3] ^= U.h[3]
+			tmp.h[4] ^= U.h[4]
 		}
 		sha1_output(T, &tmp)
 	}

@@ -23,7 +23,6 @@
 
 #define LOAD(index) \
 	MOVL	(index*4)(SI), R10; \
-	BSWAPL	R10; \
 	MOVL	R10, (index*4)(SP)
 
 #define SHUFFLE(index) \
@@ -88,22 +87,15 @@
 	FUNC4(a, b, c, d, e); \
 	MIX(a, b, c, d, e, 0xCA62C1D6)
 
-TEXT ·blockAMD64(SB),NOSPLIT,$64-32
-	MOVQ	dig+0(FP),	BP
-	MOVQ	p_base+8(FP),	SI
-	MOVQ	p_len+16(FP),	DX
-	SHRQ	$6,		DX
-	SHLQ	$6,		DX
-	
-	LEAQ	(SI)(DX*1),	DI
+TEXT ·blockAMD64(SB),NOSPLIT,$64-24
+	MOVQ	init+8(FP),	BP
+	MOVQ	src+16(FP),	SI
+
 	MOVL	(0*4)(BP),	AX
 	MOVL	(1*4)(BP),	BX
 	MOVL	(2*4)(BP),	CX
 	MOVL	(3*4)(BP),	DX
 	MOVL	(4*4)(BP),	BP
-
-	CMPQ	SI,		DI
-	JEQ	end
 
 loop:
 	MOVL	AX,	R11
@@ -203,12 +195,8 @@ loop:
 	ADDL	R14, DX
 	ADDL	R15, BP
 
-	ADDQ	$64, SI
-	CMPQ	SI, DI
-	JB	loop
-
 end:
-	MOVQ	dig+0(FP), DI
+	MOVQ	dst+0(FP), DI
 	MOVL	AX, (0*4)(DI)
 	MOVL	BX, (1*4)(DI)
 	MOVL	CX, (2*4)(DI)

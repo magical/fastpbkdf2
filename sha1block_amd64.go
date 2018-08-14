@@ -5,14 +5,8 @@
 package fastpbkdf2
 
 //go:noescape
-func blockAMD64(dig *block, p []byte)
+func blockAMD64(dst, init, src *block)
 
 func sha1_block(dst, init, src *block) {
-	dig := *init
-	var p [64]byte
-	for i, x := range src.h[:] {
-		putUint32(p[i*4:], x)
-	}
-	blockAMD64(&dig, p[:])
-	copy(dst.h[:5], dig.h[:5])
+	blockAMD64(dst, init, src)
 }
