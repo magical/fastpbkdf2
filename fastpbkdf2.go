@@ -3,18 +3,15 @@
 // license that can be found in the LICENSE file.
 
 /*
-Package pbkdf2 implements the key derivation function PBKDF2 as defined in RFC
-2898 / PKCS #5 v2.0.
+Package fastpbkdf2 implements the key derivation function PBKDF2 as defined in
+RFC 2898 / PKCS #5 v2.0.
 
 A key derivation function is useful when encrypting data based on a password
 or any other not-fully-random data. It uses a pseudorandom function to derive
 a secure encryption key based on the password.
 
-While v2.0 of the standard defines only one pseudorandom function to use,
-HMAC-SHA1, the drafted v2.1 specification allows use of all five FIPS Approved
-Hash Functions SHA-1, SHA-224, SHA-256, SHA-384 and SHA-512 for HMAC. To
-choose, you can pass the `New` functions from the different SHA packages to
-pbkdf2.Key.
+PBKDF2-HMAC-SHA1 is the only supported hash function, for now.
+PBKDF2-HMAC-SHA2 will be supported in the future.
 */
 package fastpbkdf2
 
@@ -32,11 +29,10 @@ const (
 // derived based on the method described as PBKDF2 with the HMAC variant using
 // the supplied hash function.
 //
-// For example, to use a HMAC-SHA-1 based PBKDF2 key derivation function, you
-// can get a derived key for e.g. AES-256 (which needs a 32-byte key) by
-// doing:
+// For example, you can get a derived key for e.g. AES-256 (which needs a
+// 32-byte key) by doing:
 //
-// 	dk := pbkdf2.Key([]byte("some password"), salt, 4096)
+// 	dk := fastpbkdf2.SHA1([]byte("some password"), salt, 4096, 32)
 //
 // Remember to get a good random salt. At least 8 bytes is recommended by the
 // RFC.
@@ -137,24 +133,6 @@ func sha1_output(b []byte, bl *block) {
 		putUint32(b[i*4:], x)
 	}
 }
-
-/*
-Package hmac implements the Keyed-Hash Message Authentication Code (HMAC) as
-defined in U.S. Federal Information Processing Standards Publication 198.
-An HMAC is a cryptographic hash that uses a key to sign a message.
-The receiver verifies the hash by recomputing it using the same key.
-
-Receivers should be careful to use Equal to compare MACs in order to avoid
-timing side-channels:
-
-	// CheckMAC reports whether messageMAC is a valid HMAC tag for message.
-	func CheckMAC(message, messageMAC, key []byte) bool {
-		mac := hmac.New(sha256.New, key)
-		mac.Write(message)
-		expectedMAC := mac.Sum(nil)
-		return hmac.Equal(messageMAC, expectedMAC)
-	}
-*/
 
 // FIPS 198-1:
 // https://csrc.nist.gov/publications/fips/fips198-1/FIPS-198-1_final.pdf
